@@ -5,12 +5,12 @@
       "Name": "Toggle",
       "States": [
         {
-          "Image": "action/images/on-air",
-          "Name": "On Air"
-        },
-        {
           "Image": "action/images/off-air",
           "Name": "Off Air"
+        },
+        {
+          "Image": "action/images/on-air",
+          "Name": "On Air"
         }
       ],
       "Tooltip": "Toggle the Busylight on or off",

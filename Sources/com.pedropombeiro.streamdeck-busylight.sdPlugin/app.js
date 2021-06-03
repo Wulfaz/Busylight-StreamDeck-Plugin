@@ -17,6 +17,7 @@ $SD.on('connected', (jsonObj) => connected(jsonObj));
 function connected(jsn) {
     // Subscribe to the willAppear and other events
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.willAppear', (jsonObj) => action.onWillAppear(jsonObj));
+    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.willDisappear', (jsonObj) => action.onWillDisappear(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.keyUp', (jsonObj) => action.onKeyUp(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.sendToPlugin', (jsonObj) => action.onSendToPlugin(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.didReceiveSettings', (jsonObj) => action.onDidReceiveSettings(jsonObj));
@@ -32,11 +33,16 @@ function connected(jsn) {
 
 const action = {
     settings:{},
+    cache: {},
+
+    getContextFromCache: function (ctx) {
+        return this.cache[ctx];
+    },
+
     onDidReceiveSettings: function(jsn) {
         console.log('%c%s', 'color: white; background: red; font-size: 15px;', '[app.js]onDidReceiveSettings:');
 
         this.settings = Utils.getProp(jsn, 'payload.settings', {});
-        this.doSomeThing(this.settings, 'onDidReceiveSettings', 'orange');
 
         /**
          * In this example we put a HTML-input element with id='mynameinput'
@@ -48,7 +54,12 @@ const action = {
          */
 
          this.setTitle(jsn);
-    },
+
+         const found = this.getContextFromCache(jsn.context);
+         if (found) {
+             found.refreshButtonAsync();
+         }
+     },
 
     /**
      * The 'willAppear' event is the first event a key will receive, right before it gets
@@ -57,7 +68,7 @@ const action = {
      * which are embedded in the events payload.
      */
 
-    onWillAppear: function (jsn) {
+    onWillAppear: async function (jsn) {
         console.log("You can cache your settings in 'onWillAppear'", jsn.payload.settings);
         /**
          * The willAppear event carries your saved settings (if any). You can use these settings
@@ -70,15 +81,31 @@ const action = {
         */
         this.settings = jsn.payload.settings;
 
-        // Nothing in the settings pre-fill, just something for demonstration purposes
-        if (!this.settings || Object.keys(this.settings).length === 0) {
-            this.settings.mynameinput = 'TEMPLATE';
-        }
+        const watcher = new BusylightHttpWatcher(jsn);
+
+        // cache the current watcher
+        this.cache[jsn.context] = watcher;
+
+        // // Nothing in the settings pre-fill, just something for demonstration purposes
+        // if (!this.settings || Object.keys(this.settings).length === 0) {
+        // }
         this.setTitle(jsn);
     },
 
+    onWillDisappear: function (jsn) {
+        let found = this.getContextFromCache(jsn.context);
+        if (found) {
+            found.stop();
+            delete this.cache[jsn.context];
+        }
+    },
+
     onKeyUp: function (jsn) {
-        this.doSomeThing(jsn, 'onKeyUp', 'green');
+        const watcher = this.getContextFromCache(jsn.context);
+        /** Edge case +++ */
+        if (!watcher) this.onWillAppear(jsn);
+
+        this.toggleBusylightAsync(jsn, 'onKeyUp', 'green');
     },
 
     onSendToPlugin: function (jsn) {
@@ -90,7 +117,7 @@ const action = {
 
         const sdpi_collection = Utils.getProp(jsn, 'payload.sdpi_collection', {});
         if (sdpi_collection.value && sdpi_collection.value !== undefined) {
-            this.doSomeThing({ [sdpi_collection.key] : sdpi_collection.value }, 'onSendToPlugin', 'fuchsia');
+            // this.toggleBusylightAsync({ [sdpi_collection.key] : sdpi_collection.value }, 'onSendToPlugin', 'fuchsia');
         }
     },
 
@@ -133,11 +160,101 @@ const action = {
      * from Stream Deck.
      */
 
-    doSomeThing: function(inJsonData, caller, tagColor) {
-        console.log('%c%s', `color: white; background: ${tagColor || 'grey'}; font-size: 15px;`, `[app.js]doSomeThing from: ${caller}`);
+     toggleBusylightAsync: async function(inJsonData, caller, tagColor) {
+        console.log('%c%s', `color: white; background: ${tagColor || 'grey'}; font-size: 15px;`, `[app.js]toggleBusylightAsync from: ${caller}`);
         // console.log(inJsonData);
-    },
 
+        switch (inJsonData.payload.state) {
+            case 0:
+                await fetch('http://localhost:8989?action=pulse&red=100');
+                break;
+
+            case 1:
+                await fetch('http://localhost:8989?action=light&green=50');
+                break;
+        }
+
+        const found = this.getContextFromCache(inJsonData.context);
+        if (found) {
+            await found.refreshButtonAsync();
+        }
+    }
 
 };
 
+function BusylightHttpWatcher (jsonObj) {
+    var context = jsonObj.context,
+        timer = 0
+
+
+    function start() {
+        if (timer !== 0) {
+            return;
+        }
+
+        console.log('[app.js]starting watcher')
+        refreshButtonAsync();
+        timer = setInterval(function (sx) {
+            refreshButtonAsync();
+        }, 5000);
+    }
+
+    function stop() {
+        if (timer === 0) {
+            return;
+        }
+
+        console.log('[app.js]stopping watcher')
+        window.clearInterval(timer);
+        timer = 0;
+    }
+
+    async function refreshButtonAsync() {
+        console.log('%c%s', `color: white; background: 'grey'; font-size: 15px;`, `[app.js]refreshButtonAsync`);
+
+        try {
+            const resp = await fetch('http://localhost:8989?action=currentpresence');
+            if (resp.status != 200) {
+                $SD.api.setTitle(resp.status);
+                $SD.api.send(context, 'showAlert');
+                return;
+            }
+
+            const payload = await resp.json();
+            const parameter = payload.runningcommand.parameter;
+            const paramJSON = JSON.parse(parameter);
+            if (paramJSON.action === 'light' || paramJSON.action === 'pulse') {
+                let newState = undefined;
+
+                if (paramJSON.green !== undefined && paramJSON.green > 0) {
+                    newState = 0;
+                } else if (paramJSON.red !== undefined && paramJSON.red > 0) {
+                    newState = 1;
+                }
+
+                if (newState !== undefined) {
+                    $SD.api.send(context, 'setState', {
+                        payload: {
+                            "state": newState
+                        }
+                    });
+                    $SD.api.setTitle('');
+                    $SD.api.send(context, 'showOk');
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            $SD.api.setTitle(context, 'NOT INSTALLED');
+            $SD.api.send(context, 'showAlert');
+            return;
+        }
+    }
+
+    start();
+
+    return {
+        timer: timer,
+        refreshButtonAsync: refreshButtonAsync,
+        stop: stop
+    };
+};

@@ -92,7 +92,7 @@
 
 		window.addEventListener('message',function(ev) {
 			console.log('External window received message:  ', ev.data, typeof ev.data);
-			doSomething(ev.data);
+			toggleBusylight(ev.data);
 		},false);
 
 
@@ -116,7 +116,7 @@
 			 * instantiated a bit earlier (see above)
 			 */
 			bc.onmessage = function (ev) {
-				doSomething(ev.data);
+				toggleBusylight(ev.data);
 			};
 
 			setTimeout(() => {
@@ -140,7 +140,7 @@
 			j++;
 		}
 
-		function doSomething(jsn) {
+		function toggleBusylight(jsn) {
 			const sm = document.querySelector('#inputs');
 			const ul = document.querySelector('#demoList');
 			if (ul && typeof jsn === 'object') {
