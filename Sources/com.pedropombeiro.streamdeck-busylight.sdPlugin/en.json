@@ -1,0 +1,15 @@
+{
+  "Description": "Control the Kuando Busylight using the Stream Deck",
+  "Name": "Kuando Busylight",
+  "Category": "Kuando Busylight",
+  "com.pedropombeiro.streamdeck-busylight.toggle": {
+    "Name": "Toggle",
+    "Tooltip": "Toggle busy status"
+  },
+  "Localization": {
+    "More info": "More info",
+    "Message": "Message",
+    "Click Me": "Click Me",
+    "Button": "Button"
+  }
+}

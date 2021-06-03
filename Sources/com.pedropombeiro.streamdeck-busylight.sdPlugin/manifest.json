@@ -1,0 +1,42 @@
+{
+  "Actions": [
+    {
+      "Icon": "action/images/actionimage",
+      "Name": "Toggle",
+      "States": [
+        {
+          "Image": "action/images/on-air",
+          "Name": "On Air"
+        },
+        {
+          "Image": "action/images/off-air",
+          "Name": "Off Air"
+        }
+      ],
+      "Tooltip": "Toggle the Busylight on or off",
+      "UUID": "com.pedropombeiro.streamdeck-busylight.toggle"
+    }
+  ],
+  "SDKVersion": 2,
+  "Author": "Pedro Pombeiro",
+  "CodePath": "index.html",
+  "PropertyInspectorPath": "propertyinspector/index.html",
+  "Description": "Control the Kuando Busylight",
+  "Name": "Kuando Busylight",
+  "Icon": "action/images/actionimage",
+  "URL": "https://gitlab.com/pedropombeiro/streamdeck-busylight",
+  "Version": "1.0.0",
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.11"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "4.1"
+  }
+}
