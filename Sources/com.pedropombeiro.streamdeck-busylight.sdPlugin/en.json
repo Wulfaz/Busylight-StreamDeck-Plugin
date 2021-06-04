@@ -3,7 +3,7 @@
   "Name": "Kuando Busylight",
   "Category": "Kuando Busylight",
   "com.pedropombeiro.streamdeck-busylight.toggle": {
-    "Name": "Toggle",
+    "Name": "Busylight",
     "Tooltip": "Toggle busy status"
   },
   "Localization": {

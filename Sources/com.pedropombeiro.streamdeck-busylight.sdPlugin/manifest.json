@@ -2,7 +2,7 @@
   "Actions": [
     {
       "Icon": "action/images/actionimage",
-      "Name": "Toggle",
+      "Name": "Busylight",
       "States": [
         {
           "Image": "action/images/off-air",

@@ -3,7 +3,7 @@
   "Name": "Kuando Busylight",
   "Category": "Kuando Busylight",
   "com.pedropombeiro.streamdeck-busylight.toggle": {
-    "Name": "Umschalten auf",
+    "Name": "Busylight",
     "Tooltip": "Besetztstatus umschalten"
   },
   "Localization": {
@@ -11,6 +11,5 @@
     "Message": "Nachricht",
     "Click Me": "Klicke mich",
     "Button": "Taste"
-
   }
 }
