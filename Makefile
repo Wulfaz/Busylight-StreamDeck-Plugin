@@ -11,6 +11,7 @@ install: release
 	@rm -rf ~/Library/Application\ Support/com.elgato.StreamDeck/Plugins/$(PLUGIN_NAMESPACE).sdPlugin
 	@open $(RELEASE_FILE)
 
+.PHONY: $(RELEASE_FILE)
 $(RELEASE_FILE): $(DISTRIBUTIONTOOL) $(SOURCE_DIR)/*
 	@rm -f $(RELEASE_FILE)
 	$(DISTRIBUTIONTOOL) -b -i $(SOURCE_DIR) -o Release

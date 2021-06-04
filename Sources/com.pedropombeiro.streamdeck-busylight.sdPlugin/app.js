@@ -20,6 +20,8 @@ function connected(jsn) {
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.willDisappear', (jsonObj) => action.onWillDisappear(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.keyUp', (jsonObj) => action.onKeyUp(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.sendToPlugin', (jsonObj) => action.onSendToPlugin(jsonObj));
+    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidLaunch', (jsonObj) => action.onApplicationDidLaunch(jsonObj));
+    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidTerminate', (jsonObj) => action.onApplicationDidTerminate(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.didReceiveSettings', (jsonObj) => action.onDidReceiveSettings(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.propertyInspectorDidAppear', (jsonObj) => {
         console.log('%c%s', 'color: white; background: black; font-size: 13px;', '[app.js]propertyInspectorDidAppear:');
@@ -43,17 +45,6 @@ const action = {
         console.log('%c%s', 'color: white; background: red; font-size: 15px;', '[app.js]onDidReceiveSettings:');
 
         this.settings = Utils.getProp(jsn, 'payload.settings', {});
-
-        /**
-         * In this example we put a HTML-input element with id='mynameinput'
-         * into the Property Inspector's DOM. If you enter some data into that
-         * input-field it get's saved to Stream Deck persistently and the plugin
-         * will receive the updated 'didReceiveSettings' event.
-         * Here we look for this setting and use it to change the title of
-         * the key.
-         */
-
-         this.setTitle(jsn);
 
          const found = this.getContextFromCache(jsn.context);
          if (found) {
@@ -89,7 +80,6 @@ const action = {
         // // Nothing in the settings pre-fill, just something for demonstration purposes
         // if (!this.settings || Object.keys(this.settings).length === 0) {
         // }
-        this.setTitle(jsn);
     },
 
     onWillDisappear: function (jsn) {
@@ -121,6 +111,22 @@ const action = {
         }
     },
 
+    onApplicationDidLaunch: function (jsn) {
+        setTimeout(() => {
+            const found = this.getContextFromCache(jsn.context);
+            if (found) {
+                found.refreshButtonAsync();
+			};
+        }, 2000);
+    },
+
+    onApplicationDidTerminate: function (jsn) {
+        const found = this.getContextFromCache(jsn.context);
+        if (found) {
+            found.refreshButtonAsync();
+        }
+    },
+
     /**
      * This snippet shows how you could save settings persistantly to Stream Deck software.
      * It is not used in this example plugin.
@@ -134,23 +140,6 @@ const action = {
                 console.log('setSettings....', this.settings);
                 $SD.api.setSettings(jsn.context, this.settings);
             }
-        }
-    },
-
-    /**
-     * Here's a quick demo-wrapper to show how you could change a key's title based on what you
-     * stored in settings.
-     * If you enter something into Property Inspector's name field (in this demo),
-     * it will get the title of your key.
-     *
-     * @param {JSON} jsn // The JSON object passed from Stream Deck to the plugin, which contains the plugin's context
-     *
-     */
-
-    setTitle: function(jsn) {
-        if (this.settings && this.settings.hasOwnProperty('mynameinput')) {
-            console.log("watch the key on your StreamDeck - it got a new title...", this.settings.mynameinput);
-            $SD.api.setTitle(jsn.context, this.settings.mynameinput);
         }
     },
 
@@ -215,13 +204,20 @@ function BusylightHttpWatcher (jsonObj) {
         try {
             const resp = await fetch('http://localhost:8989?action=currentpresence');
             if (resp.status != 200) {
-                $SD.api.setTitle(resp.status);
+                $SD.api.setTitle(jsn.context, resp.status);
                 $SD.api.send(context, 'showAlert');
                 return;
             }
 
             const payload = await resp.json();
             const parameter = payload.runningcommand.parameter;
+
+            $SD.api.setTitle(context, '');
+
+            if (parameter == null) {
+                return;
+            }
+
             const paramJSON = JSON.parse(parameter);
             if (paramJSON.action === 'light' || paramJSON.action === 'pulse') {
                 let newState = undefined;
@@ -238,7 +234,6 @@ function BusylightHttpWatcher (jsonObj) {
                             "state": newState
                         }
                     });
-                    $SD.api.setTitle('');
                     $SD.api.send(context, 'showOk');
                 }
             }
