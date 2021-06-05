@@ -1,0 +1,35 @@
+stages:
+  - upload
+  - release
+
+default:
+  tags:
+  - gitlab-org
+
+variables:
+  # Package version can only contain numbers (0-9), and dots (.).
+  # Must be in the format of X.Y.Z, i.e. should match /\A\d+\.\d+\.\d+\z/ regular expresion.
+  # See https://docs.gitlab.com/ee/user/packages/generic_packages/#publish-a-package-file
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/streamdeck-busylight/${PACKAGE_VERSION}"
+  ARTIFACT_NAME: com.pedropombeiro.streamdeck-busylight.streamDeckPlugin
+
+upload:
+  stage: upload
+  image: curlimages/curl:latest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - |
+      export PACKAGE_VERSION="$(cat Sources/com.pedropombeiro.streamdeck-busylight.sdPlugin/manifest.json | jq -r .Version)"
+      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file Release/${ARTIFACT_NAME} ${PACKAGE_REGISTRY_URL}/${ARTIFACT_NAME}
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - |
+      export PACKAGE_VERSION="$(cat Sources/com.pedropombeiro.streamdeck-busylight.sdPlugin/manifest.json | jq -r .Version)"
+      release-cli create --name "Release $PACKAGE_VERSION" --tag-name "$PACKAGE_VERSION" --ref "$CI_COMMIT_SHA" \
+        --assets-link "{\"name\":\"${ARTIFACT_NAME}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${ARTIFACT_NAME}\"}"
