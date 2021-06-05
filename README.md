@@ -16,3 +16,7 @@ It requires no configuration as it connects to the kuando Busylight HTTP server 
 - code written in Javascript
 - cross-platform (macOS, Windows - not tested yet)
 - localization support
+
+## Installation
+
+Download the latest release from https://gitlab.com/pedropombeiro/streamdeck-busylight/-/releases and double-click the `.streamDeckPlugin` file.
