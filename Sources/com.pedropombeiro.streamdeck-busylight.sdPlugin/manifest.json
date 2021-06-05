@@ -13,7 +13,7 @@
           "Name": "On Air"
         }
       ],
-      "Tooltip": "Toggle the Busylight on or off",
+      "Tooltip": "Toggle the Busylight between on-air and off-air",
       "UUID": "com.pedropombeiro.streamdeck-busylight.toggle"
     }
   ],
