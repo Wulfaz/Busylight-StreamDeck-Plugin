@@ -153,13 +153,13 @@ const action = {
         console.log('%c%s', `color: white; background: ${tagColor || 'grey'}; font-size: 15px;`, `[app.js]toggleBusylightAsync from: ${caller}`);
         // console.log(inJsonData);
 
-        switch (inJsonData.payload.state) {
+        switch (inJsonData.payload.userDesiredState) {
             case 0:
-                await fetch('http://localhost:8989?action=pulse&red=100');
+                await fetch('http://localhost:8989?action=light&green=50');
                 break;
 
             case 1:
-                await fetch('http://localhost:8989?action=light&green=50');
+                await fetch('http://localhost:8989?action=pulse&red=100');
                 break;
         }
 
