@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+GIT_ROOT=$(cd "${BASH_SOURCE%/*}" && git rev-parse --show-toplevel)
+
+cd "${GIT_ROOT}"
+
+NEXT_VERSION=$(jq -r .Version "${SOURCE_DIR}/manifest.json" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+
+jq -r ".Version=\"${NEXT_VERSION}\"" "${SOURCE_DIR}/manifest.json" | sponge "${SOURCE_DIR}/manifest.json"
+
+make "${RELEASE_FILE}"
+
+git add "${SOURCE_DIR}/manifest.json" "${RELEASE_FILE}"
+git commit -m "Bump to version ${NEXT_VERSION}"
+
+cd -

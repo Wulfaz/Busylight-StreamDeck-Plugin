@@ -1,14 +1,18 @@
 DISTRIBUTIONTOOL ?= .tmp/DistributionTool
 PLUGIN_NAMESPACE := com.pedropombeiro.streamdeck-busylight
-SOURCE_DIR := Sources/$(PLUGIN_NAMESPACE).sdPlugin
-RELEASE_FILE := Release/$(PLUGIN_NAMESPACE).streamDeckPlugin
+export SOURCE_DIR := Sources/$(PLUGIN_NAMESPACE).sdPlugin
+export RELEASE_FILE := Release/$(PLUGIN_NAMESPACE).streamDeckPlugin
+
+.PHONY: setup
+setup:
+	brew install coreutils
 
 .PHONY: release
-release: $(RELEASE_FILE)
+release:
+	@scripts/release
 
 .PHONY: install
 install: release
-	@rm -rf ~/Library/Application\ Support/com.elgato.StreamDeck/Plugins/$(PLUGIN_NAMESPACE).sdPlugin
 	@open $(RELEASE_FILE)
 
 .PHONY: $(RELEASE_FILE)
