@@ -1,10 +1,10 @@
 stages:
-  - upload
+  - prepare
   - release
 
 default:
   tags:
-  - gitlab-org
+    - gitlab-org
 
 variables:
   # Package version can only contain numbers (0-9), and dots (.).
@@ -13,23 +13,40 @@ variables:
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/streamdeck-busylight/${PACKAGE_VERSION}"
   ARTIFACT_NAME: com.pedropombeiro.streamdeck-busylight.streamDeckPlugin
 
-upload:
-  stage: upload
-  image: curlimages/curl:latest
+prepare:
+  stage: prepare
+  image: alpine:latest
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: $CI_COMMIT_TAG
+      when: never                                             # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH             # Run this job when commits are pushed or merged to the default branch
+  before_script:
+    - apk update
+    - apk add jq
   script:
-    - |
-      export PACKAGE_VERSION="$(cat Sources/com.pedropombeiro.streamdeck-busylight.sdPlugin/manifest.json | jq -r .Version)"
-      curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file Release/${ARTIFACT_NAME} ${PACKAGE_REGISTRY_URL}/${ARTIFACT_NAME}
+    - echo "PACKAGE_VERSION=$(cat Sources/com.pedropombeiro.streamdeck-busylight.sdPlugin/manifest.json | jq -r .Version)" > variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env                                   # Use artifacts:reports:dotenv to expose the variables to other jobs
 
 release:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   rules:
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: $CI_COMMIT_TAG
+      when: never                                             # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH             # Run this job when commits are pushed or merged to the default branch
+  needs:
+    - job: prepare
+      artifacts: true
   script:
-    - |
-      export PACKAGE_VERSION="$(cat Sources/com.pedropombeiro.streamdeck-busylight.sdPlugin/manifest.json | jq -r .Version)"
-      release-cli create --name "Release $PACKAGE_VERSION" --tag-name "$PACKAGE_VERSION" --ref "$CI_COMMIT_SHA" \
-        --assets-link "{\"name\":\"${ARTIFACT_NAME}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${ARTIFACT_NAME}\"}"
+    - echo "running release_job for $PACKAGE_VERSION"
+  release:
+    name: 'Release v$PACKAGE_VERSION'
+    description: 'Control the Kuando Busylight using the Elgato Stream Deck'
+    tag_name: 'v$PACKAGE_VERSION'
+    ref: '$CI_COMMIT_SHA'
+    assets:
+      links:
+        - name: '$ARTIFACT_NAME'
+          url: '${PACKAGE_REGISTRY_URL}/${ARTIFACT_NAME}'
