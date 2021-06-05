@@ -157,30 +157,30 @@ $SD.on('piDataChanged', (returnValue) => {
 
     console.log('%c%s', 'color: white; background: blue}; font-size: 15px;', 'piDataChanged');
     console.log(returnValue);
-    
-    if (returnValue.key === 'clickme') {
 
-        postMessage = (w) => {
-            w.postMessage(
-                Object.assign({}, $SD.applicationInfo.application, {action: $SD.actionInfo.action})
-                ,'*');
-        }
+    // if (returnValue.key === 'clickme') {
 
-        if (!window.xtWindow || window.xtWindow.closed) {
-            window.xtWindow  = window.open('../externalWindow.html', 'External Window');
-            setTimeout(() => postMessage(window.xtWindow), 200);
-        } else {
-           postMessage(window.xtWindow);
-        }
+    //     postMessage = (w) => {
+    //         w.postMessage(
+    //             Object.assign({}, $SD.applicationInfo.application, {action: $SD.actionInfo.action})
+    //             ,'*');
+    //     }
 
-    } else {
+    //     if (!window.xtWindow || window.xtWindow.closed) {
+    //         window.xtWindow  = window.open('../externalWindow.html', 'External Window');
+    //         setTimeout(() => postMessage(window.xtWindow), 200);
+    //     } else {
+    //        postMessage(window.xtWindow);
+    //     }
 
-        /* SAVE THE VALUE TO SETTINGS */
-        saveSettings(returnValue);
+    // } else {
 
-        /* SEND THE VALUES TO PLUGIN */
-        sendValueToPlugin(returnValue, 'sdpi_collection');
-    }
+    //     /* SAVE THE VALUE TO SETTINGS */
+    //     saveSettings(returnValue);
+
+    //     /* SEND THE VALUES TO PLUGIN */
+    //     sendValueToPlugin(returnValue, 'sdpi_collection');
+    // }
 });
 
 /**
