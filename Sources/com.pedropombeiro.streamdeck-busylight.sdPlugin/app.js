@@ -72,10 +72,12 @@ const action = {
         */
         this.settings = jsn.payload.settings;
 
-        const watcher = new BusylightHttpWatcher(jsn);
+        if (!jsn.payload.isInMultiAction) {
+            const watcher = new BusylightHttpWatcher(jsn);
 
-        // cache the current watcher
-        this.cache[jsn.context] = watcher;
+            // cache the current watcher
+            this.cache[jsn.context] = watcher;
+        }
 
         // // Nothing in the settings pre-fill, just something for demonstration purposes
         // if (!this.settings || Object.keys(this.settings).length === 0) {
@@ -153,14 +155,18 @@ const action = {
         console.log('%c%s', `color: white; background: ${tagColor || 'grey'}; font-size: 15px;`, `[app.js]toggleBusylightAsync from: ${caller}`);
         // console.log(inJsonData);
 
-        switch (inJsonData.payload.state) {
+        switch (inJsonData.payload.userDesiredState) {
             case 0:
-                await fetch('http://localhost:8989?action=pulse&red=100');
+                await fetch('http://localhost:8989?action=light&green=50');
                 break;
 
             case 1:
-                await fetch('http://localhost:8989?action=light&green=50');
+                await fetch('http://localhost:8989?action=pulse&red=100');
                 break;
+        }
+
+        if (inJsonData.payload.isInMultiAction) {
+            return;
         }
 
         const found = this.getContextFromCache(inJsonData.context);
