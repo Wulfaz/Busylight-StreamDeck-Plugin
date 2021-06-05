@@ -25,7 +25,7 @@
   "Name": "Kuando Busylight",
   "Icon": "action/images/actionimage",
   "URL": "https://gitlab.com/pedropombeiro/streamdeck-busylight",
-  "Version": "1.0.12",
+  "Version": "1.0.13",
   "OS": [
     {
       "Platform": "mac",
@@ -41,11 +41,11 @@
   },
   "ApplicationsToMonitor": {
     "mac": [
-        "com.plenom.busylighthttp"
+      "com.plenom.busylighthttp"
     ],
     "windows": [
-        "Busylight_HTTP_Win.exe",
-        "kuandoHUB.exe"
+      "Busylight_HTTP_Win.exe",
+      "kuandoHUB.exe"
     ]
   }
 }
