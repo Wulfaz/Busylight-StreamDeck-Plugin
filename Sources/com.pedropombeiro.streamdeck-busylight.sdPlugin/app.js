@@ -19,9 +19,11 @@ function connected(jsn) {
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.willAppear', (jsonObj) => action.onWillAppear(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.willDisappear', (jsonObj) => action.onWillDisappear(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.keyUp', (jsonObj) => action.onKeyUp(jsonObj));
-    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.sendToPlugin', (jsonObj) => action.onSendToPlugin(jsonObj));
-    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidLaunch', (jsonObj) => action.onApplicationDidLaunch(jsonObj));
-    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidTerminate', (jsonObj) => action.onApplicationDidTerminate(jsonObj));
+    // $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.sendToPlugin', (jsonObj) => action.onSendToPlugin(jsonObj));
+    if (!jsn.payload.isInMultiAction) {
+        $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidLaunch', (jsonObj) => action.onApplicationDidLaunch(jsonObj));
+        $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidTerminate', (jsonObj) => action.onApplicationDidTerminate(jsonObj));
+    }
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.didReceiveSettings', (jsonObj) => action.onDidReceiveSettings(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.propertyInspectorDidAppear', (jsonObj) => {
         console.log('%c%s', 'color: white; background: black; font-size: 13px;', '[app.js]propertyInspectorDidAppear:');
@@ -46,11 +48,15 @@ const action = {
 
         this.settings = Utils.getProp(jsn, 'payload.settings', {});
 
-         const found = this.getContextFromCache(jsn.context);
-         if (found) {
-             found.refreshButtonAsync();
-         }
-     },
+        if (jsn.payload.isInMultiAction) {
+            return;
+        }
+
+        const found = this.getContextFromCache(jsn.context);
+        if (found) {
+            found.refreshButtonAsync();
+        }
+    },
 
     /**
      * The 'willAppear' event is the first event a key will receive, right before it gets
@@ -206,6 +212,10 @@ function BusylightHttpWatcher (jsonObj) {
 
     async function refreshButtonAsync(userInitiated = false) {
         console.log('%c%s', `color: white; background: 'grey'; font-size: 15px;`, `[app.js]refreshButtonAsync`);
+
+        if (jsn.payload.isInMultiAction) {
+            return;
+        }
 
         try {
             const resp = await fetch('http://localhost:8989?action=currentpresence');
