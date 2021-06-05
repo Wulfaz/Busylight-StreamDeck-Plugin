@@ -171,7 +171,7 @@ const action = {
 
         const found = this.getContextFromCache(inJsonData.context);
         if (found) {
-            await found.refreshButtonAsync();
+            await found.refreshButtonAsync(true);
         }
     }
 
@@ -204,7 +204,7 @@ function BusylightHttpWatcher (jsonObj) {
         timer = 0;
     }
 
-    async function refreshButtonAsync() {
+    async function refreshButtonAsync(userInitiated = false) {
         console.log('%c%s', `color: white; background: 'grey'; font-size: 15px;`, `[app.js]refreshButtonAsync`);
 
         try {
@@ -240,7 +240,9 @@ function BusylightHttpWatcher (jsonObj) {
                             "state": newState
                         }
                     });
-                    $SD.api.send(context, 'showOk');
+                    if (userInitiated === true) {
+                        $SD.api.send(context, 'showOk');
+                    }
                 }
             }
         } catch (error) {
