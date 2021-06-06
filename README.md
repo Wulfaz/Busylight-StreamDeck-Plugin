@@ -20,3 +20,7 @@ It requires no configuration as it connects to the kuando Busylight HTTP server 
 ## Installation
 
 Download the latest release from https://gitlab.com/pedropombeiro/streamdeck-busylight/-/releases and double-click the `.streamDeckPlugin` file.
+
+## Demo
+
+[YouTube video](https://youtu.be/fgxbG2PBowo) - remember to turn on subtitles for description of what's going on. The Busylight action is located on the second row from the top, third column from the right.
