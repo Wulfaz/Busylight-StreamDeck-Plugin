@@ -36,7 +36,7 @@ function connected(jsn) {
 // ACTIONS
 
 const action = {
-    settings:{},
+    settings: {},
     cache: {},
 
     getContextFromCache: function (ctx) {
@@ -165,14 +165,14 @@ const action = {
      * from Stream Deck.
      */
 
-     toggleBusylightAsync: async function(inJsonData, caller, tagColor) {
+     toggleBusylightAsync: async function(jsn, caller, tagColor) {
         console.log('%c%s', `color: white; background: ${tagColor || 'grey'}; font-size: 15px;`, `[app.js]toggleBusylightAsync from: ${caller}`);
-        // console.log(inJsonData);
+        // console.log(jsn);
 
         let arguments;
-        let userDesiredState = inJsonData.payload.userDesiredState;
-        if (!userDesiredState) {
-            userDesiredState = (inJsonData.payload.state + 1) % 2;
+        let userDesiredState = jsn.payload.userDesiredState;
+        if (userDesiredState === undefined) {
+            userDesiredState = (jsn.payload.state + 1) % 2;
         }
         switch (userDesiredState) {
             case 0:
@@ -187,11 +187,11 @@ const action = {
             await fetch(`${busylightHTTPHost}?${arguments}`);
         }
 
-        if (inJsonData.payload.isInMultiAction) {
+        if (jsn.payload.isInMultiAction) {
             return;
         }
 
-        const found = this.getContextFromCache(inJsonData.context);
+        const found = this.getContextFromCache(jsn.context);
         if (found) {
             await found.refreshButtonAsync(true);
         }
