@@ -187,16 +187,27 @@ const action = {
             await fetch(`${busylightHTTPHost}?${arguments}`);
         }
 
+        this.notifyWatchers(userDesiredState);
+
         if (jsn.payload.isInMultiAction) {
             return;
         }
 
         const found = this.getContextFromCache(jsn.context);
         if (found) {
-            await found.refreshButtonAsync(true);
+            await found.refreshButtonAsync(userDesiredState, true);
+        }
+    },
+
+    notifyWatchers: function(userDesiredState) {
+        for (const key in this.cache) {
+            if (Object.hasOwnProperty.call(this.cache, key)) {
+                const watcher = this.cache[key];
+
+                watcher.refreshButtonAsync(userDesiredState);
+            }
         }
     }
-
 };
 
 function BusylightHttpWatcher (jsonObj) {
@@ -226,45 +237,26 @@ function BusylightHttpWatcher (jsonObj) {
         timer = 0;
     }
 
-    async function refreshButtonAsync(userInitiated = false) {
+    async function refreshButtonAsync(userSetState = undefined, userInitiated = false) {
         console.log('%c%s', `color: white; background: 'grey'; font-size: 15px;`, `[app.js]refreshButtonAsync`);
 
         try {
-            const resp = await fetch(`${busylightHTTPHost}?action=currentpresence`);
-            if (resp.status != 200) {
-                $SD.api.setTitle(jsn.context, resp.status);
-                $SD.api.send(context, 'showAlert');
-                return;
+            let newState = userSetState;
+
+            if (userSetState === undefined) {
+                newState = await fetchLastStateAsync();
+            } else {
+                $SD.api.setTitle(context, '');
             }
 
-            const payload = await resp.json();
-            const parameter = payload.runningcommand.parameter;
-
-            $SD.api.setTitle(context, '');
-
-            if (parameter == null) {
-                return;
-            }
-
-            const paramJSON = JSON.parse(parameter);
-            if (paramJSON.action === 'light' || paramJSON.action === 'pulse') {
-                let newState = undefined;
-
-                if (paramJSON.green !== undefined && paramJSON.green > 0) {
-                    newState = 0;
-                } else if (paramJSON.red !== undefined && paramJSON.red > 0) {
-                    newState = 1;
-                }
-
-                if (newState !== undefined) {
-                    $SD.api.send(context, 'setState', {
-                        payload: {
-                            "state": newState
-                        }
-                    });
-                    if (userInitiated === true) {
-                        $SD.api.send(context, 'showOk');
+            if (newState !== undefined) {
+                $SD.api.send(context, 'setState', {
+                    payload: {
+                        "state": newState
                     }
+                });
+                if (userInitiated === true) {
+                    $SD.api.send(context, 'showOk');
                 }
             }
         } catch (error) {
@@ -273,6 +265,36 @@ function BusylightHttpWatcher (jsonObj) {
             $SD.api.send(context, 'showAlert');
             return;
         }
+    }
+
+    async function fetchLastStateAsync() {
+        let newState;
+        const resp = await fetch(`${busylightHTTPHost}?action=currentpresence`);
+        if (resp.status != 200) {
+            $SD.api.setTitle(context, resp.status);
+            $SD.api.send(context, 'showAlert');
+            return;
+        }
+
+        const payload = await resp.json();
+        const parameter = payload.runningcommand.parameter;
+
+        $SD.api.setTitle(context, '');
+
+        if (parameter == null) {
+            return;
+        }
+
+        const paramJSON = JSON.parse(parameter);
+        if (paramJSON.action === 'light' || paramJSON.action === 'pulse') {
+            if (paramJSON.green !== undefined && paramJSON.green > 0) {
+                newState = 0;
+            } else if (paramJSON.red !== undefined && paramJSON.red > 0) {
+                newState = 1;
+            }
+        }
+
+        return newState;
     }
 
     start();
