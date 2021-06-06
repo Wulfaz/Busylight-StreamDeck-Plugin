@@ -12,6 +12,8 @@
  * You can use it to subscribe to events you want to use in your plugin.
  */
 
+const busylightHTTPHost = 'http://localhost:8989'
+
 $SD.on('connected', (jsonObj) => connected(jsonObj));
 
 function connected(jsn) {
@@ -20,10 +22,8 @@ function connected(jsn) {
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.willDisappear', (jsonObj) => action.onWillDisappear(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.keyUp', (jsonObj) => action.onKeyUp(jsonObj));
     // $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.sendToPlugin', (jsonObj) => action.onSendToPlugin(jsonObj));
-    if (!jsn.payload.isInMultiAction) {
-        $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidLaunch', (jsonObj) => action.onApplicationDidLaunch(jsonObj));
-        $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidTerminate', (jsonObj) => action.onApplicationDidTerminate(jsonObj));
-    }
+    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidLaunch', (jsonObj) => action.onApplicationDidLaunch(jsonObj));
+    $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.applicationDidTerminate', (jsonObj) => action.onApplicationDidTerminate(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.didReceiveSettings', (jsonObj) => action.onDidReceiveSettings(jsonObj));
     $SD.on('com.pedropombeiro.streamdeck-busylight.toggle.propertyInspectorDidAppear', (jsonObj) => {
         console.log('%c%s', 'color: white; background: black; font-size: 13px;', '[app.js]propertyInspectorDidAppear:');
@@ -120,6 +120,10 @@ const action = {
     },
 
     onApplicationDidLaunch: function (jsn) {
+        if (jsn.payload.isInMultiAction) {
+            return;
+        }
+
         setTimeout(() => {
             const found = this.getContextFromCache(jsn.context);
             if (found) {
@@ -129,6 +133,10 @@ const action = {
     },
 
     onApplicationDidTerminate: function (jsn) {
+        if (jsn.payload.isInMultiAction) {
+            return;
+        }
+
         const found = this.getContextFromCache(jsn.context);
         if (found) {
             found.refreshButtonAsync();
@@ -161,14 +169,22 @@ const action = {
         console.log('%c%s', `color: white; background: ${tagColor || 'grey'}; font-size: 15px;`, `[app.js]toggleBusylightAsync from: ${caller}`);
         // console.log(inJsonData);
 
-        switch (inJsonData.payload.userDesiredState) {
+        let arguments;
+        let userDesiredState = inJsonData.payload.userDesiredState;
+        if (!userDesiredState) {
+            userDesiredState = (inJsonData.payload.state + 1) % 2;
+        }
+        switch (userDesiredState) {
             case 0:
-                await fetch('http://localhost:8989?action=light&green=50');
+                arguments = 'action=light&green=50';
                 break;
 
             case 1:
-                await fetch('http://localhost:8989?action=pulse&red=100');
+                arguments = 'action=pulse&red=100';
                 break;
+        }
+        if (arguments) {
+            await fetch(`${busylightHTTPHost}?${arguments}`);
         }
 
         if (inJsonData.payload.isInMultiAction) {
@@ -213,12 +229,8 @@ function BusylightHttpWatcher (jsonObj) {
     async function refreshButtonAsync(userInitiated = false) {
         console.log('%c%s', `color: white; background: 'grey'; font-size: 15px;`, `[app.js]refreshButtonAsync`);
 
-        if (jsn.payload.isInMultiAction) {
-            return;
-        }
-
         try {
-            const resp = await fetch('http://localhost:8989?action=currentpresence');
+            const resp = await fetch(`${busylightHTTPHost}?action=currentpresence`);
             if (resp.status != 200) {
                 $SD.api.setTitle(jsn.context, resp.status);
                 $SD.api.send(context, 'showAlert');
