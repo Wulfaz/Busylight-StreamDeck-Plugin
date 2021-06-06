@@ -245,10 +245,12 @@ function BusylightHttpWatcher (jsonObj) {
 
             if (userSetState === undefined) {
                 newState = await fetchLastStateAsync();
-            } else {
-                $SD.api.setTitle(context, '');
+            }
+            if (newState === null) {
+                return;
             }
 
+            $SD.api.setTitle(context, '');
             if (newState !== undefined) {
                 $SD.api.send(context, 'setState', {
                     payload: {
@@ -273,7 +275,7 @@ function BusylightHttpWatcher (jsonObj) {
         if (resp.status != 200) {
             $SD.api.setTitle(context, resp.status);
             $SD.api.send(context, 'showAlert');
-            return;
+            return null;
         }
 
         const payload = await resp.json();
@@ -282,7 +284,7 @@ function BusylightHttpWatcher (jsonObj) {
         $SD.api.setTitle(context, '');
 
         if (parameter == null) {
-            return;
+            return undefined;
         }
 
         const paramJSON = JSON.parse(parameter);
