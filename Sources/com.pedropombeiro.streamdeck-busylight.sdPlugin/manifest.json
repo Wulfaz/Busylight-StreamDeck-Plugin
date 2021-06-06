@@ -25,7 +25,7 @@
   "Name": "Kuando Busylight",
   "Icon": "action/images/actionimage",
   "URL": "https://gitlab.com/pedropombeiro/streamdeck-busylight",
-  "Version": "1.0.54",
+  "Version": "1.0.55",
   "OS": [
     {
       "Platform": "mac",
