@@ -1,5 +1,5 @@
 {
-  "Description": "Nimm diese Vorlage für dein erstes Plugin",
+  "Description": "Steuern Sie das kuando Busylight durch das Stream Deck",
   "Name": "kuando Busylight",
   "Category": "kuando Busylight",
   "com.pedropombeiro.streamdeck-busylight.toggle": {
@@ -7,9 +7,5 @@
     "Tooltip": "Besetztstatus umschalten"
   },
   "Localization": {
-    "More info": "Mehr Infos",
-    "Message": "Nachricht",
-    "Click Me": "Klicke mich",
-    "Button": "Taste"
   }
 }

@@ -1,0 +1,11 @@
+{
+  "Description": "Controle o kuando Busylight através do Stream Deck",
+  "Name": "kuando Busylight",
+  "Category": "kuando Busylight",
+  "com.pedropombeiro.streamdeck-busylight.toggle": {
+    "Name": "Alternar Busylight",
+    "Tooltip": "Alternar o estado do Busylight"
+  },
+  "Localization": {
+  }
+}
