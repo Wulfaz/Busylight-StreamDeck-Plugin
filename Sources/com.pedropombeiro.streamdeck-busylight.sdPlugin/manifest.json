@@ -21,9 +21,9 @@
   "Author": "Pedro Pombeiro",
   "CodePath": "index.html",
   "PropertyInspectorPath": "propertyinspector/index.html",
-  "Description": "Control the Kuando Busylight",
-  "Name": "Kuando Busylight",
-  "Icon": "action/images/actionimage",
+  "Description": "Control the kuando Busylight",
+  "Name": "kuando Busylight",
+  "Icon": "pluginIcon",
   "URL": "https://gitlab.com/pedropombeiro/streamdeck-busylight",
   "Version": "1.0.56",
   "OS": [
