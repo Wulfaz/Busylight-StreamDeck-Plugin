@@ -21,11 +21,11 @@
   "Author": "Pedro Pombeiro",
   "CodePath": "index.html",
   "PropertyInspectorPath": "propertyinspector/index.html",
-  "Description": "Control the kuando Busylight",
+  "Description": "Control the kuando Busylight (prerequisite: install Busylight HTTP gateway at https://www.plenom.com/download/177233/)",
   "Name": "kuando Busylight",
   "Icon": "pluginIcon",
   "URL": "https://gitlab.com/pedropombeiro/streamdeck-busylight",
-  "Version": "1.0.57",
+  "Version": "1.0.58",
   "OS": [
     {
       "Platform": "mac",
