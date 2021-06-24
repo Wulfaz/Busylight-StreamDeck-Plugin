@@ -20,7 +20,7 @@ It requires no configuration as it connects to the kuando Busylight HTTP server 
 
 **Prerequisite**: Install the official [kuando Busylight HTTP](https://www.plenom.com/download/177233/) software.
 
-Download the [latest release](https://gitlab.com/pedropombeiro/streamdeck-busylight/-/releases) and double-click the `.streamDeckPlugin` file.
+Download the [latest release](https://gitlab.com/pedropombeiro/streamdeck-busylight/-/releases) and double-click the `.streamDeckPlugin` file, or [install](streamdeck://plugin/install/com.pedropombeiro.streamdeck-busylight) from the Elgato Store directly.
 
 ## Demo
 
