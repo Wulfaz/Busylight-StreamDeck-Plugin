@@ -2,10 +2,9 @@
   "Description": "Steuern Sie das kuando Busylight durch das Stream Deck",
   "Name": "kuando Busylight",
   "Category": "kuando Busylight",
-  "com.pedropombeiro.streamdeck-busylight.toggle": {
+  "net.wulfaz.busylight.toggle": {
     "Name": "Busylight umschalten",
     "Tooltip": "Besetztstatus umschalten"
   },
-  "Localization": {
-  }
+  "Localization": {}
 }
