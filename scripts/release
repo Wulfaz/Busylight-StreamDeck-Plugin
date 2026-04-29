@@ -6,15 +6,15 @@ GIT_ROOT=$(cd "${BASH_SOURCE%/*}" && git rev-parse --show-toplevel)
 
 cd "${GIT_ROOT}"
 
-MANIFEST="${PLUGIN_DIR:-com.pedropombeiro.streamdeck-busylight.sdPlugin}/manifest.json"
+MANIFEST="${PLUGIN_DIR:-net.wulfaz.busylight.sdPlugin}/manifest.json"
 NEXT_VERSION=$(jq -r .Version "${MANIFEST}" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
 
 jq ".Version=\"${NEXT_VERSION}\"" "${MANIFEST}" | sponge "${MANIFEST}"
 
 npm run build
-streamdeck pack "${PLUGIN_DIR:-com.pedropombeiro.streamdeck-busylight.sdPlugin}"
+streamdeck pack "${PLUGIN_DIR:-net.wulfaz.busylight.sdPlugin}"
 
-RELEASE_FILE="com.pedropombeiro.streamdeck-busylight.streamDeckPlugin"
+RELEASE_FILE="net.wulfaz.busylight.streamDeckPlugin"
 git add "${MANIFEST}" "${RELEASE_FILE}"
 git commit -m "Bump to version ${NEXT_VERSION}"
 
