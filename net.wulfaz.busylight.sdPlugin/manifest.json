@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "net.wulfaz.busylight",
+  "Name": "kuando Busylight",
+  "Author": "Wulfaz",
+  "Category": "kuando Busylight",
+  "CategoryIcon": "imgs/plugin-icon",
+  "Description": "Control the kuando Busylight (prerequisite: install Busylight HTTP gateway at https://www.plenom.com/download/177233/)",
+  "Version": "2.0.1",
+  "CodePath": "bin/plugin.js",
+  "Icon": "imgs/plugin-icon",
+  "SDKVersion": 3,
+  "Software": {
+    "MinimumVersion": "7.1"
+  },
+  "Nodejs": {
+    "Version": "20"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "13"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Actions": [
+    {
+      "UUID": "net.wulfaz.busylight.toggle",
+      "Name": "Busylight",
+      "Icon": "imgs/actions/toggle/key",
+      "Tooltip": "Toggle the Busylight between on-air and off-air",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/actions/toggle/off-air",
+          "Name": "Off Air"
+        },
+        {
+          "Image": "imgs/actions/toggle/on-air",
+          "Name": "On Air"
+        }
+      ]
+    }
+  ],
+  "ApplicationsToMonitor": {
+    "mac": [
+      "com.plenom.busylighthttp"
+    ],
+    "windows": [
+      "Busylight_HTTP_Win.exe",
+      "kuandoHUB.exe"
+    ]
+  },
+  "URL": "https://github.com/Wulfaz/Busylight-StreamDeck-Plugin"
+}
